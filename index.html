@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Update: Suhani</title>
+<style>
+.title {
+  transition: text-shadow .25s ease;
+}
+.title:hover {
+  text-shadow:
+    0 0 0 rgba(78,161,255,0),           /* base */
+    0 0 18px rgba(78,161,255,.28),      /* glow */
+    0 2px 22px rgba(78,161,255,.22);    /* drop */
+}
+
+  :root{
+    --page-bg:#0e1a2a; --panel:#101f33; --card:#1b2a3d;
+    --text:#e6edf3; --muted:#a7b3c6; --accent:#4ea1ff;
+    --border:rgba(255,255,255,0.08);
+    --shadow:0 16px 34px rgba(0,0,0,.35);
+    --cardShadow:0 10px 22px rgba(8,14,26,.55);
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:
+      radial-gradient(1200px 800px at 90% -10%, rgba(78,161,255,.12), transparent 55%),
+      radial-gradient(1200px 900px at -10% 120%, rgba(78,161,255,.08), transparent 55%),
+      var(--page-bg);
+    color:var(--text); line-height:1.6;
+  }
+  .wrap{max-width:1080px;margin:48px auto 80px;padding:0 24px}
+
+  /* Header */
+  .head{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid var(--border); border-radius:14px; padding:28px 26px; box-shadow:var(--shadow);
+  }
+  .title{margin:0; font-size:32px; font-weight:800; letter-spacing:.2px}
+  .subtitle{margin:6px 0 0 0; color:var(--muted); font-size:14px}
+  .rule{height:1px; background:var(--border); margin:18px 0 0 0}
+
+  /* Sections */
+  .section{margin-top:22px}
+  .section h2{display:flex; align-items:center; gap:10px; margin:0 0 14px 0; font-size:20px; font-weight:800}
+  .bar{width:6px; height:22px; border-radius:4px; background:var(--accent);
+    box-shadow:0 0 0 1px rgba(78,161,255,.25);}
+
+  /* Cards */
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 16px;
+    display:flex; gap:14px; align-items:flex-start; box-shadow:var(--cardShadow); margin-bottom:18px;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .card:hover{ transform: translateY(-4px); box-shadow:0 18px 34px rgba(0,0,0,.55); border-color:rgba(78,161,255,.25); }
+  .iconBox{flex:0 0 44px; height:44px; width:44px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; font-size:22px}
+  .card h3{margin:0 0 6px 0; font-size:18px; font-weight:800}
+  .card p{margin:0 0 6px 0} .card em{color:var(--muted)}
+  .card ul{margin:0; padding-left:20px} .card li{margin:6px 0}
+  strong{font-weight:800}
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent);
+    transition: color .2s, border-color .2s;
+  }
+  a:hover {
+    text-decoration: underline;
+    border-color: var(--accent);
+  }
+
+  /* Details / summary (full-width dropdowns) */
+  details {
+    display: block;
+    width: 100%;                 /* always span full card width */
+    margin-top: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+  }
+  details + details { margin-top: 10px; }
+  summary { cursor: pointer; font-weight: 700; color: var(--text); outline: none; }
+  details[open] {
+    background: rgba(78,161,255,0.06);
+    border-color: rgba(78,161,255,0.25);
+  }
+
+  /* Progress bars */
+  .progress{ background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 8px 0 2px; box-sizing: border-box;
+  .progress-bar{ background:var(--accent); padding:6px 8px; font-size:12px; color:#fff; font-weight:700; }
+
+  /* Achievement pill row */
+  .pills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .pill{
+    border:1px solid var(--border); background:rgba(255,255,255,0.04);
+    padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted);
+  }
+
+  /* Anchor targets highlight */
+  :target .section-label{ box-shadow:inset 0 -10px 0 rgba(78,161,255,0.15); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+<!-- Edit the sections below to fit your role -->
+
+    <!-- HEADER -->
+    <div class="head">
+      <h1 class="title">Weekly Update: Suhani - Week of October 6th</h1>
+      <p class="subtitle">Snapshot of wins, progress, and risks at SS&C Technologies</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 1) KEY WINS -->
+    <div class="section" id="wins">
+      <h2 class="section-label"><span class="bar"></span> Key Wins (This Week)</h2>
+
+      <div class="card">
+        <div class="iconBox">🚀</div>
+        <div>
+          <h3>Weekly Update</h3>
+          <p>Wrapped up all stories for previous sprint</p>
+          <p>Helped Wasam work on deployment and dev for MPD and Lyric UI</p>
+          <p>Closed up PR for fixing codeql scan issues on ACL</p>
+
+	  <details>
+            <summary>Additional Notes</summary>
+            <ul>
+              <li>XXX</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="iconBox">🗒️</div>
+        <div>
+          <h3>Understanding Design and Analysis of Lyric UI</h3>
+          <ul>
+            <li>Solidified understanding of dev and deployment process</li>
+            <li>Understanding the release process of testing</li>
+            <li>Learning about the enviornment files and how envrionment variables contribute to the keycloaks we use</li>
+            <li>GIDS and BKS keycloak and understanding the security and authentification</li>
+
+
+          </ul>
+
+          <details>
+            <summary>Additional Notes</summary>
+            <ul>
+              <li>XXX</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="iconBox">💛</div>
+        <div>
+          <h3>Team Support</h3>
+          <ul>
+            <li>Better understanding of Jira + Tempo thanks to Julia</li>
+            <li>Understanding of realms, how to coordinate and match up information for corresponding keycloaks</li>
+
+          </ul>
+
+          <details>
+            <summary>Additional Notes</summary>
+            <ul>
+              <li>XXX</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
+    <!-- 2) IN PROGRESS -->
+    <div class="section" id="progress">
+      <h2 class="section-label"><span class="bar"></span> In Progress (Next Week’s Focus)</h2>
+
+      <div class="card">
+        <div class="iconBox">🔧</div>
+        <div>
+          <div style="margin-top:10px;">Description of Task 1</div>
+          <div class="progress"><div class="progress-bar" style="width:20%">20%</div></div>
+
+          <div style="margin-top:10px;">Description of Task 2</div>
+          <div class="progress"><div class="progress-bar" style="width:50%">50%</div></div>
+
+          <div style="margin-top:10px;">Description of Task 3</div>
+          <div class="progress"><div class="progress-bar" style="width:70%">70%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3) BLOCKERS -->
+    <div class="section" id="blockers">
+      <h2 class="section-label"><span class="bar"></span> Blockers / Risks</h2>
+      <div class="card">
+        <div class="iconBox">✅</div>
+        <div>
+          <ul><li>None for now</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4) ROLL-UP / ACHIEVEMENTS -->
+    <div class="section" id="rollup">
+      <h2 class="section-label"><span class="bar"></span> Roll-Up (Cumulative Achievements)</h2>
+      <div class="card">
+        <div class="iconBox">📈</div>
+        <div>
+          <p style="margin-bottom:8px;">Quick stats since joining P&T</p>
+          <div class="pills">
+            <span class="pill">🏆 Achievement 1</span>
+            <span class="pill">🚀 Achievement 2</span>
+            <span class="pill">✍️ Achievement 3</span>
+            <span class="pill">🧪 Achievement 4</span>
+            <span class="pill">🪲 Achievement 5</span>
+          </div>
+          <details style="margin-top:12px;">
+            <summary>View Detailed List</summary>
+            <ul>
+              <li>Achievement 1</li>
+              <li>Achievement 2</li>
+              <li>Achievement 3</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
