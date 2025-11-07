@@ -110,7 +110,7 @@
 
     <!-- HEADER -->
     <div class="head">
-      <h1 class="title">Weekly Update: Suhani - Week of October 20th</h1>
+      <h1 class="title">Weekly Update: Suhani - Weeks of October 27th and November 3rd </h1>
       <p class="subtitle">Snapshot of wins, progress, and learning at my internship with SS&C Technologies</p>
       <div class="rule"></div>
     </div>
@@ -122,16 +122,48 @@
       <div class="card">
         <div class="iconBox">🔒</div>
         <div>
-          <h3>ZAP Proxy Security Testing</h3>
-          <p>Fixed critical security vulnerabilities discovered through ZAP scans, including domain misconfiguration, missing anti-clickjacking headers, content security policy issues, and metadata exposure risks.</p>
-          
+          <h3>Updates!</h3>
           <details>
-            <summary>How ZAP Testing Works</summary>
+            <summary>Last Weeks Task</summary>
             <ul>
-              <li>ZAP uses headless browsers to test endpoints with GET requests</li>
-              <li>Analyzes HTML responses to identify potential attack variables</li>
-              <li>Simulates attacker behavior by probing for weaknesses</li>
-              <li>Helped me develop a security-first mindset when reviewing code</li>
+              <p>Fixed critical security vulnerabilities discovered through ZAP scans, including domain misconfiguration, missing anti-clickjacking headers, content security policy issues, and metadata exposure risks.</p>
+          <p>Was working on ZAP Proxy Security Testing errors but was running into roadblocks since switching into a new auth and keycloak</p>
+          <p>Most changes occured inb the nginx.conf file and some were false positives that had to be self dismissed</p>
+          <p>An example is that the scan was picking up a time stamp, which potential hackers could use as a timestamp to track updates and releases</p>
+          <p>However, it was just an alpha channel value in CSS styling</p>
+          <p>I also learned about curl requests and how they can help test and evaluate code</p>
+            </ul>
+          </details>
+
+
+          <details>
+            <summary>Angular Upgrade Process</summary>
+            <ul>
+              <li>I have gained an EXTREME respect for people doing software upgrades. It takes so long wow.</li>
+              <li>This process took about a week and I learned so much about how software upgrades work</li>
+              <li>I first read about the overall process and angular documentation</li>
+              <li>After that, I went through the steps of installation, which was just a few npm core commands</li>
+              <li>Some elements in angular were not used in ADA, so I just set them aside</li>
+              <li>I went through the npm documentation to make note of the most recent version + matching it to ACL dependency versions</li>
+              <li>I added the xlsx ependency and learned about what ~ and ^ symbolize in package.json</li>
+              <li>^ is called caret, and allows updates to the most recent campatible version within in the same major version</li>
+              <li>~ is tilde, and it restricts updates to only patch releases withn the same minor version (provides more control)</li>
+              <li>I had to upgrade fontawesome and animations</li>
+              <li>Finally, I was getting a local build version, but my sonar scan was failing</li>
+              <li>I had to deal with some jest errors, instal uuid and had to redirect the path </li>
+
+            </ul>
+          </details>
+          <details>
+            <summary>How CURL Requests work</summary>
+            <ul>
+              <li>cURL or "client for URLs" is a command line tool and library</li>
+              <li>Helps tranfer data with various protocols</li>
+              <li>It also retrieves data like fetching web pages, images using methods like GET, POST, PUT, PATCH and DELETE</li>
+              <li>I also got the experience of working with API endpoints and testing/debugging those</li>
+              <li>Overall it was challenging because I was learning so many new concepts at the same time</li>
+              <li>Something I wish I had done differently to address this challenge was creating an isolated enironment so I can see all the endpoint connections away from the other files in the codebase</li>
+
             </ul>
           </details>
 
