@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+
 <title>Weekly Update: Suhani</title>
 <style>
 .title {
@@ -103,6 +105,13 @@
 
   /* Anchor targets highlight */
   :target .section-label{ box-shadow:inset 0 -10px 0 rgba(78,161,255,0.15); }
+
+
+  .img
+  {
+    height: 400px; 
+    width: 600px
+  }
 </style>
 </head>
 <body>
@@ -110,7 +119,7 @@
 
     <!-- HEADER -->
     <div class="head">
-      <h1 class="title">Weekly Update: Suhani - Weeks of October 27th and November 3rd </h1>
+      <h1 class="title">Weekly Update: Suhani - Weeks of November 10th </h1>
       <p class="subtitle">Snapshot of wins, progress, and learning at my internship with SS&C Technologies</p>
       <div class="rule"></div>
     </div>
@@ -119,11 +128,50 @@
     <div class="section" id="wins">
       <h2 class="section-label"><span class="bar"></span> Key Wins (This Week)</h2>
 
+
+      <div class="card">
+        <div class="iconBox">🛠️</div>
+        <div>
+          <h3>Dealing with additional errors in ADA</h3>
+          <p>More errors persisted post upgrade that needed to be worked through.</p>
+          
+          <details>
+            <summary>Visual Bug</summary>
+            <ul>
+              <li>Before: Misalignment of textbox and angular components</li>
+              <img src="assets\before.png" class="img">
+              <li>After: Aligned components</li>
+              <img src="assets\after.png" class="img">
+              <li>I used margins and padding to align them properly in their respective files: event-search-component.html </li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>NullInjection Error</summary>
+            <ul>
+              <li>NullInjector Error Screenshot</li>
+              <img src="assets\nullinjectionerror.png" class="img">
+              <li>First approach was doing internal keycloak configs, which did not solve the error of nullinjection</li>
+              <li>Second approach was going through the nginx file and adding more relaxed restrictions on a certain header</li>
+              <li>Transforming: add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self';" always;</li>
+              <li>To this: add_header Content-Security-Policy "default-src 'self'; \
+                  script-src 'self' 'unsafe-inline' https://use.fontawesome.com; \
+                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+                  font-src 'self' https://fonts.gstatic.com; \</li>
+
+              <li>Also needed to go in and change the realms to the most recent keycloak</li>
+              <li>Needed to remove unused imports + a downgraded apollo client</li>
+            </ul>
+          </details>
+          </details>
+        </div>
+      </div>
+
       <div class="card">
         <div class="iconBox">🔒</div>
         <div>
           <h3>Updates!</h3>
-          <details>
+          <!-- <details>
             <summary>Last Weeks Task</summary>
             <ul>
               <p>Fixed critical security vulnerabilities discovered through ZAP scans, including domain misconfiguration, missing anti-clickjacking headers, content security policy issues, and metadata exposure risks.</p>
@@ -133,7 +181,7 @@
           <p>However, it was just an alpha channel value in CSS styling</p>
           <p>I also learned about curl requests and how they can help test and evaluate code</p>
             </ul>
-          </details>
+          </details> -->
 
 
           <details>
@@ -178,6 +226,36 @@
           </details>
         </div>
       </div>
+
+
+      <!-- <div class="card">
+        <div class="iconBox">🚀</div>
+        <div>
+          <h3>Template Card</h3>
+          <p>Brief description of task</p>
+          
+          <details>
+            <summary>Dropdown title</summary>
+            <ul>
+              <li>Point 1</li>
+              <li>Point 2</li>
+              <li>Point 3</li>
+              <li>Point 4</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>Dropdown title</summary>
+            <ul>
+              <li>Point 1</li>
+              <li>Point 2</li>
+              <li>Point 3</li>
+              <li>Point 4</li>
+            </ul>
+          </details>
+          </details>
+        </div>
+      </div> -->
 
       <div class="card">
         <div class="iconBox">⚙️</div>
