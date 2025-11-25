@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1:1 Agenda - Suhani</title>
+<style>
+  :root{
+    --page-bg:#0e1a2a; --panel:#101f33; --card:#1b2a3d;
+    --text:#e6edf3; --muted:#a7b3c6; --accent:#4ea1ff;
+    --border:rgba(255,255,255,0.08);
+    --shadow:0 16px 34px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:
+      radial-gradient(1200px 800px at 90% -10%, rgba(78,161,255,.12), transparent 55%),
+      radial-gradient(1200px 900px at -10% 120%, rgba(78,161,255,.08), transparent 55%),
+      var(--page-bg);
+    color:var(--text); line-height:1.6; padding:20px;
+  }
+  .container{max-width:900px; margin:0 auto; background:var(--panel); 
+    border:1px solid var(--border); border-radius:16px; padding:32px; box-shadow:var(--shadow);}
+  
+  h1{margin:0 0 8px 0; font-size:28px; font-weight:800; color:var(--accent);}
+  .meta{color:var(--muted); font-size:14px; margin-bottom:24px;}
+  
+  .section{margin:28px 0; padding:20px; background:var(--card); 
+    border:1px solid var(--border); border-radius:12px;}
+  .section h2{margin:0 0 16px 0; font-size:20px; font-weight:700; 
+    display:flex; align-items:center; gap:10px;}
+  .icon{font-size:24px;}
+  
+  .time{display:inline-block; background:rgba(78,161,255,.15); 
+    color:var(--accent); padding:4px 10px; border-radius:6px; 
+    font-size:12px; font-weight:600; margin-left:auto;}
+  
+  ul{margin:8px 0; padding-left:24px;}
+  li{margin:8px 0; line-height:1.5;}
+  
+  .highlight{background:rgba(78,161,255,.12); padding:12px; 
+    border-left:3px solid var(--accent); border-radius:4px; margin:12px 0;}
+  
+  .question{color:var(--accent); font-weight:600;}
+  
+  strong{color:var(--text); font-weight:700;}
+  
+  .notes-section{background:rgba(255,255,255,.02); padding:16px; 
+    border-radius:8px; margin-top:12px; border:1px dashed var(--border);}
+  .notes-section h3{margin:0 0 8px 0; font-size:14px; 
+    color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
+
+  @media print {
+    body{background:white; color:black;}
+    .container{box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>1:1 Meeting Agenda</h1>
+    <div class="meta">
+      <strong>Date:</strong> Week of November 25, 2024<br>
+      <strong>Attendee:</strong> Suhani<br>
+      <strong>Manager:</strong> [Manager Name]<br>
+      <strong>Duration:</strong> 30 minutes
+    </div>
+
+    <!-- SECTION 1: RECENT WINS -->
+    <div class="section">
+      <h2>
+        <span class="icon">🎉</span>
+        Recent Wins & Accomplishments
+        <span class="time">5 min</span>
+      </h2>
+      <ul>
+        <li><strong>Successfully completed Angular 14 → 16 upgrade</strong>
+          <ul>
+            <li>Application now builds 15% faster with improved tree-shaking</li>
+            <li>Resolved complex NullInjector error that was blocking entire dev environment</li>
+            <li>Fixed Jest configuration issues and maintained 82% test coverage</li>
+          </ul>
+        </li>
+        <li><strong>Resolved 12 security vulnerabilities</strong> (8 high, 4 medium severity) from ZAP scans</li>
+        <li><strong>Improved code quality score from B → A</strong> in SonarQube</li>
+        <li><strong>Gained hands-on Nginx configuration experience</strong>
+          <ul>
+            <li>Fixed load balancer routing issues</li>
+            <li>Configured CSP headers for security while maintaining functionality</li>
+            <li>Created documentation that helped 2 other team members</li>
+          </ul>
+        </li>
+        <li><strong>Updated BKS hub endpoints</strong> for Lyric 2 integration and tested edge cases thoroughly</li>
+      </ul>
+
+      <div class="highlight">
+        <strong>Biggest win:</strong> Debugging the NullInjector error taught me that error messages can be misleading. The real issue was CSP blocking Angular's bootstrap, not actual dependency injection problems. This experience improved my systematic debugging approach.
+      </div>
+    </div>
+
+    <!-- SECTION 2: CHALLENGES & BLOCKERS -->
+    <div class="section">
+      <h2>
+        <span class="icon">🚧</span>
+        Current Challenges & Blockers
+        <span class="time">5 min</span>
+      </h2>
+      <ul>
+        <li><strong>Task estimation accuracy:</strong> I tend to underestimate complexity. The Angular upgrade took ~1 week instead of 3-4 days I initially estimated.
+          <ul>
+            <li><span class="question">Question:</span> Any tips for improving estimation as I learn the codebase?</li>
+          </ul>
+        </li>
+        <li><strong>Balancing deep learning vs delivery:</strong> I want to understand everything deeply but sometimes this slows down progress.
+          <ul>
+            <li><span class="question">Question:</span> How do you recommend I balance thoroughness with velocity?</li>
+          </ul>
+        </li>
+        <li><strong>Not a blocker but seeking clarity:</strong> When should I ask for help vs continue researching independently?
+          <ul>
+            <li>I spent ~4 hours on Keycloak configs before realizing the issue was in Nginx</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3: CAREER DEVELOPMENT -->
+    <div class="section">
+      <h2>
+        <span class="icon">🚀</span>
+        Career Development & Learning Goals
+        <span class="time">10 min</span>
+      </h2>
+      
+      <div class="highlight">
+        <strong>Context:</strong> I'm exploring a potential transition into product management, consulting, or business strategy roles. I want to understand how technical and business sides connect.
+      </div>
+
+      <ul>
+        <li><strong>Short-term technical growth (next 4-6 weeks):</strong>
+          <ul>
+            <li>PostgreSQL query optimization and schema design</li>
+            <li>API development and RESTful design principles</li>
+            <li>Apache Kafka and event-driven architecture basics</li>
+            <li><span class="question">Question:</span> Are there specific projects coming up where I could get exposure to these areas?</li>
+          </ul>
+        </li>
+
+        <li><strong>Product & business skill development:</strong>
+          <ul>
+            <li>Understanding how product decisions are made at SS&C</li>
+            <li>Learning about wireframing, user research, and client use cases</li>
+            <li>Seeing how technical feasibility balances with business value</li>
+            <li><span class="question">Question:</span> Could I shadow you or a PM on a discovery call or requirements gathering session?</li>
+          </ul>
+        </li>
+
+        <li><strong>Networking and mentorship:</strong>
+          <ul>
+            <li>I'm actively networking for my next internship (targeting management consulting at KPMG, SWE roles, fintech)</li>
+            <li>Working on 1/1 AI startup (network mapping for founders) with a co-founder</li>
+            <li><span class="question">Question:</span> Do you have advice on how to position my SS&C experience when talking to companies in different industries?</li>
+          </ul>
+        </li>
+
+        <li><strong>Speaking up in technical discussions:</strong>
+          <ul>
+            <li>I sometimes hesitate to contribute in architecture discussions because I'm still learning</li>
+            <li><span class="question">Question:</span> How can I add value in those conversations as a junior engineer?</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECTION 4: UPCOMING WORK -->
+    <div class="section">
+      <h2>
+        <span class="icon">📋</span>
+        Upcoming Work & Priorities
+        <span class="time">5 min</span>
+      </h2>
+      <ul>
+        <li><strong>This week's priorities:</strong>
+          <ul>
+            <li>Complete remaining post-upgrade testing and documentation</li>
+            <li>Address any new ZAP scan findings from latest build</li>
+            <li>Continue BKS endpoint testing and edge case validation</li>
+          </ul>
+        </li>
+
+        <li><strong>Interested in exploring:</strong>
+          <ul>
+            <li>Database optimization work (mentioned as learning goal)</li>
+            <li>Contributing to API development for new features</li>
+            <li>Participating in architecture discussions for upcoming Lyric features</li>
+          </ul>
+        </li>
+
+        <li><span class="question">Question:</span> What should I prioritize in the next 2-3 weeks? Are there any high-impact projects where I could contribute?</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 5: FEEDBACK & TEAM -->
+    <div class="section">
+      <h2>
+        <span class="icon">💬</span>
+        Feedback & Team Dynamics
+        <span class="time">3 min</span>
+      </h2>
+      <ul>
+        <li><strong>What's working well:</strong>
+          <ul>
+            <li>Julia's Jira guidance has been super helpful for ticket management</li>
+            <li>Pair programming sessions accelerate my learning significantly</li>
+            <li>Code review process is constructive and educational</li>
+          </ul>
+        </li>
+
+        <li><strong>Request for feedback:</strong>
+          <ul>
+            <li><span class="question">Question:</span> How am I doing overall? Any areas where you'd like to see me improve or focus more?</li>
+            <li><span class="question">Question:</span> Are my PRs well-structured? Is my communication clear?</li>
+          </ul>
+        </li>
+
+        <li><strong>Team contribution ideas:</strong>
+          <ul>
+            <li>I created Nginx troubleshooting docs that helped other developers</li>
+            <li>Would love to do a brown bag session on Angular upgrade learnings if that's useful</li>
+            <li><span class="question">Question:</span> How else can I contribute to team knowledge sharing?</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECTION 6: QUESTIONS FOR MANAGER -->
+    <div class="section">
+      <h2>
+        <span class="icon">❓</span>
+        Questions for You
+        <span class="time">2 min</span>
+      </h2>
+      <ul>
+        <li>What does success look like for me in the remaining weeks of my internship?</li>
+        <li>Are there any team initiatives or strategic projects I should be aware of?</li>
+        <li>How can I best position myself for a potential return offer (if that's something to discuss)?</li>
+        <li>Given my interest in product/strategy, are there any cross-functional projects where I could gain exposure?</li>
+      </ul>
+    </div>
+
+    <!-- NOTES SECTION -->
+    <div class="notes-section">
+      <h3>📝 Meeting Notes & Action Items</h3>
+      <p style="color:var(--muted); font-size:14px; margin:0;">
+        [Space for notes during the meeting]
+      </p>
+      <br>
+      <p style="color:var(--muted); font-size:14px; margin:0;">
+        <strong>Action Items:</strong>
+      </p>
+      <ul style="color:var(--muted); font-size:14px;">
+        <li>[ ] </li>
+        <li>[ ] </li>
+        <li>[ ] </li>
+      </ul>
+    </div>
+
+  </div>
+</body>
+</html>
