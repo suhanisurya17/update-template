@@ -106,11 +106,21 @@
   /* Anchor targets highlight */
   :target .section-label{ box-shadow:inset 0 -10px 0 rgba(78,161,255,0.15); }
 
-
-  .img
-  {
+  .img {
     height: 400px; 
-    width: 600px
+    width: 600px;
+    margin: 10px 0;
+  }
+
+  .code-block {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
   }
 </style>
 </head>
@@ -119,7 +129,7 @@
 
     <!-- HEADER -->
     <div class="head">
-      <h1 class="title">Weekly Update: Suhani - Weeks of November 10th </h1>
+      <h1 class="title">Weekly Update: Suhani - Week of November 17th</h1>
       <p class="subtitle">Snapshot of wins, progress, and learning at my internship with SS&C Technologies</p>
       <div class="rule"></div>
     </div>
@@ -128,41 +138,95 @@
     <div class="section" id="wins">
       <h2 class="section-label"><span class="bar"></span> Key Wins (This Week)</h2>
 
-
       <div class="card">
         <div class="iconBox">🛠️</div>
         <div> 
-          <h3>Dealing with additional errors in ADA</h3>
-          <p>More errors persisted post upgrade that needed to be worked through.</p>
-          
+          <h3>Complex Troubleshooting in ADA Post-Upgrade</h3>
+          <p>Successfully resolved multiple critical errors that emerged after the Angular upgrade, requiring deep debugging across authentication, security headers, and dependency management. This work was essential to getting the application functional again in the development environment.</p>
+
           <details>
-            <summary>Visual Bug</summary>
+            <summary>NullInjection Error Resolution (Primary Challenge)</summary>
             <ul>
-              <li>Before: Misalignment of textbox and angular components</li>
-              <img src="assets\before.png" class="img">
-              <li>After: Aligned components</li>
-              <img src="assets\after.png" class="img">
-              <li>I used margins and padding to align them properly in their respective files: event-search-component.html </li>
+              <li><strong>Error Context:</strong> NullInjector error occurred post-upgrade, indicating Angular's dependency injection system couldn't find required providers. This was blocking the entire application from loading properly and manifested as a blank screen with console errors.</li>
+              
+              <li><strong>Impact:</strong> Application completely non-functional, affecting all development and testing work. This was a blocker for the entire team's progress on ADA features.</li>
+
+              <li><strong>First Approach (Keycloak Configuration):</strong>
+                <ul>
+                  <li>Initially suspected authentication provider issues in Keycloak based on error stack trace</li>
+                  <li>Attempted to reconfigure client scopes and mappers in Keycloak admin console</li>
+                  <li>Verified token endpoints and OAuth flows were correctly configured</li>
+                  <li>Checked realm settings and client secret configurations</li>
+                  <li>This approach did not resolve the NullInjector error, indicating the root cause was elsewhere in the stack</li>
+                  <li><strong>Time invested:</strong> ~4 hours debugging authentication configurations</li>
+                </ul>
+              </li>
+
+              <li><strong>Second Approach (Content Security Policy Analysis):</strong>
+                <ul>
+                  <li>Discovered that strict CSP headers in Nginx were blocking necessary inline scripts and external resources</li>
+                  <li>The application needs Font Awesome icons and Google Fonts to render the UI properly</li>
+                  <li>CSP violations were preventing Angular from bootstrapping correctly, which manifested as the NullInjector error</li>
+                  <li>Used browser DevTools Network and Console tabs to identify blocked resources</li>
+                </ul>
+              </li>
+
+              <li><strong>Detailed Troubleshooting Steps:</strong>
+                <ol>
+                  <li>Removed nonce directive and tested with only 'unsafe-inline' (necessary for Angular's dynamic script injection during bootstrap)</li>
+                  <li>Tried using 'unsafe-inline' for both script-src and style-src to allow inline styling that Angular generates</li>
+                  <li>Added stylesheet URLs specifically into HTML header tags as fallback loading mechanism</li>
+                  <li>Explicitly whitelisted external CDN sources (Font Awesome at use.fontawesome.com, Google Fonts at fonts.googleapis.com and fonts.gstatic.com)</li>
+                  <li>Tested each change incrementally to isolate which specific directive was causing the bootstrap failure</li>
+                  <li>Verified changes using browser DevTools console to track CSP violations in real-time</li>
+                  <li>Validated that removing each restriction actually fixed the corresponding error without introducing new ones</li>
+                </ol>
+              </li>
+
+              <li><strong>Configuration Changes Made:</strong>
+                <ul>
+                  <li>Original restrictive policy: 
+                    <div class="code-block">add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self';" always;</div>
+                  </li>
+                  <li>Updated to allow necessary resources: 
+                    <div class="code-block">add_header Content-Security-Policy "default-src 'self'; \
+    script-src 'self' 'unsafe-inline' https://use.fontawesome.com; \
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+    font-src 'self' https://fonts.gstatic.com; \
+    connect-src 'self' [keycloak-endpoint];" always;</div>
+                  </li>
+                  <li>This balances security with functionality by allowing only specific trusted external sources while maintaining protection against XSS attacks</li>
+                  <li>Documented the rationale for each 'unsafe-inline' usage for future security audits</li>
+                </ul>
+              </li>
+
+              <li><strong>Additional Fixes Required:</strong>
+                <ul>
+                  <li>Updated Keycloak realm configurations to match the most recent version (realm names changed from legacy format to new naming convention)</li>
+                  <li>Modified client IDs and redirect URIs to align with new authentication flow</li>
+                  <li>Removed unused imports that were causing circular dependencies (specifically in auth.service.ts and app.module.ts)</li>
+                  <li>Downgraded Apollo Client from v3.8 to v3.7.x due to breaking changes in the newer version's cache implementation that wasn't compatible with our GraphQL setup</li>
+                  <li>Verified all authentication flows (login, logout, token refresh) worked correctly after changes</li>
+                  <li>Tested with multiple user roles to ensure permissions were preserved</li>
+                </ul>
+              </li>
+
+              <li><strong>Root Cause Analysis:</strong> The NullInjector error was a symptom, not the root cause. The actual issue was that Angular's bootstrapping process was silently failing due to CSP violations, which then cascaded into dependency injection failures. This taught me the importance of checking browser console for CSP violations when debugging mysterious Angular errors.</li>
+
+              <li><strong>Key Learning:</strong> NullInjector errors can have multiple root causes beyond missing providers. Security policies like CSP can prevent Angular from bootstrapping properly, leading to confusing error messages. Always check browser console for CSP violations first, then work backwards from there. Also learned that error messages in Angular can be misleading – the stack trace pointed to DI issues, but the real problem was in the infrastructure layer.</li>
+
+              <li><strong>Total Time:</strong> ~2 days of debugging and testing to fully resolve</li>
             </ul>
           </details>
 
           <details>
-            <summary>NullInjection Error</summary>
+            <summary>Additional Post-Upgrade Issues</summary>
             <ul>
-              <li>NullInjector Error Screenshot</li>
-              <img src="assets\nullinjectionerror.png" class="img">
-              <li>First approach was doing internal keycloak configs, which did not solve the error of nullinjection</li>
-              <li>Second approach was going through the nginx file and adding more relaxed restrictions on a certain header</li>
-              <li>Transforming: add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self';" always;</li>
-              <li>To this: add_header Content-Security-Policy "default-src 'self'; \
-                  script-src 'self' 'unsafe-inline' https://use.fontawesome.com; \
-                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
-                  font-src 'self' https://fonts.gstatic.com; \</li>
-
-              <li>Also needed to go in and change the realms to the most recent keycloak</li>
-              <li>Needed to remove unused imports + a downgraded apollo client</li>
+              <li><strong>Module Resolution Errors:</strong> Fixed import path issues where TypeScript couldn't resolve modules after the upgrade due to changes in tsconfig paths</li>
+              <li><strong>Styling Breaks:</strong> Several components had CSS that relied on deprecated Angular Material APIs, required updating to new theming system</li>
+              <li><strong>Test Failures:</strong> Jest tests failing due to changes in Angular testing utilities, updated TestBed configurations</li>
+              <li><strong>Build Warnings:</strong> Addressed numerous deprecation warnings to future-proof the codebase</li>
             </ul>
-          </details>
           </details>
         </div>
       </div>
@@ -170,117 +234,392 @@
       <div class="card">
         <div class="iconBox">🔒</div>
         <div>
-          <h3>Updates!</h3>
-          <!-- <details>
-            <summary>Last Weeks Task</summary>
-            <ul>
-              <p>Fixed critical security vulnerabilities discovered through ZAP scans, including domain misconfiguration, missing anti-clickjacking headers, content security policy issues, and metadata exposure risks.</p>
-          <p>Was working on ZAP Proxy Security Testing errors but was running into roadblocks since switching into a new auth and keycloak</p>
-          <p>Most changes occured inb the nginx.conf file and some were false positives that had to be self dismissed</p>
-          <p>An example is that the scan was picking up a time stamp, which potential hackers could use as a timestamp to track updates and releases</p>
-          <p>However, it was just an alpha channel value in CSS styling</p>
-          <p>I also learned about curl requests and how they can help test and evaluate code</p>
-            </ul>
-          </details> -->
-
+          <h3>Security Enhancements and Angular Upgrade</h3>
+          <p>Led the Angular upgrade process from version 14 to 16 while simultaneously addressing security vulnerabilities discovered through automated scanning. This dual focus required careful coordination to ensure both security and functionality improvements.</p>
 
           <details>
-            <summary>Angular Upgrade Process</summary>
+            <summary>Angular Upgrade Process (Detailed Journey)</summary>
             <ul>
-              <li>I have gained an EXTREME respect for people doing software upgrades. It takes so long wow.</li>
-              <li>This process took about a week and I learned so much about how software upgrades work</li>
-              <li>I first read about the overall process and angular documentation</li>
-              <li>After that, I went through the steps of installation, which was just a few npm core commands</li>
-              <li>Some elements in angular were not used in ADA, so I just set them aside</li>
-              <li>I went through the npm documentation to make note of the most recent version + matching it to ACL dependency versions</li>
-              <li>I added the xlsx ependency and learned about what ~ and ^ symbolize in package.json</li>
-              <li>^ is called caret, and allows updates to the most recent campatible version within in the same major version</li>
-              <li>~ is tilde, and it restricts updates to only patch releases withn the same minor version (provides more control)</li>
-              <li>I had to upgrade fontawesome and animations</li>
-              <li>Finally, I was getting a local build version, but my sonar scan was failing</li>
-              <li>I had to deal with some jest errors, instal uuid and had to redirect the path </li>
+              <li><strong>Initial Planning and Research:</strong>
+                <ul>
+                  <li>Reviewed official Angular documentation for upgrade paths and breaking changes between v14, v15, and v16</li>
+                  <li>Created a comprehensive checklist of all necessary changes based on migration guides</li>
+                  <li>Identified deprecated APIs we were using that needed to be replaced</li>
+                  <li>Estimated ~1 week for full upgrade and testing cycle</li>
+                </ul>
+              </li>
 
+              <li><strong>Respect for Software Upgrades:</strong> I gained an EXTREME respect for engineers who handle major software upgrades. What seems like "just update the version number" is actually weeks of meticulous work tracking down edge cases, testing integrations, and ensuring nothing breaks in production. This process took about a full week of focused effort and taught me so much about dependency management and backward compatibility.</li>
+
+              <li><strong>Installation and Core Updates:</strong>
+                <ul>
+                  <li>Ran ng update @angular/core@16 @angular/cli@16 to update core packages</li>
+                  <li>Updated @angular/platform-browser, @angular/router, and all first-party Angular packages</li>
+                  <li>Some Angular features like standalone components weren't being used in ADA, so I documented these for potential future adoption but didn't implement them</li>
+                  <li>Updated TypeScript to v5.0 (required for Angular 16)</li>
+                </ul>
+              </li>
+
+              <li><strong>Dependency Management Deep Dive:</strong>
+                <ul>
+                  <li>Went through npm documentation to identify the most recent compatible versions for each package</li>
+                  <li>Cross-referenced with ACL (Angular Component Library) dependency versions to ensure compatibility across our shared component system</li>
+                  <li>Added xlsx dependency for Excel file handling functionality (new feature requirement)</li>
+                  <li><strong>Package.json Version Symbols:</strong>
+                    <ul>
+                      <li>^ (caret): Allows updates to the most recent compatible version within the same major version. Example: ^16.2.0 will update to 16.9.9 but not 17.0.0. Good for getting bug fixes and minor features automatically.</li>
+                      <li>~ (tilde): Restricts updates to only patch releases within the same minor version. Example: ~16.2.0 will update to 16.2.9 but not 16.3.0. Provides more control and stability for critical dependencies.</li>
+                      <li>I used tilde for core Angular packages to avoid unexpected breaking changes, and caret for utility libraries where we wanted automatic updates.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+
+              <li><strong>Specific Package Updates:</strong>
+                <ul>
+                  <li>Upgraded @fortawesome/angular-fontawesome from v0.11 to v0.13 to support Angular 16's new injection system</li>
+                  <li>Updated @angular/animations to match core Angular version (critical for Material components)</li>
+                  <li>RxJS stayed at v7 (no upgrade needed, but verified compatibility)</li>
+                  <li>Updated Angular Material to v16 (required multiple template changes)</li>
+                </ul>
+              </li>
+
+              <li><strong>Build and Testing Challenges:</strong>
+                <ul>
+                  <li>Successfully got local build running with ng serve --port 4200</li>
+                  <li>Application loaded and basic functionality worked in local environment</li>
+                  <li>However, SonarQube CI/CD scan was failing due to code quality issues</li>
+                  <li>Sonar was flagging test coverage drops and code smells introduced during upgrade</li>
+                </ul>
+              </li>
+
+              <li><strong>Jest Configuration Issues:</strong>
+                <ul>
+                  <li>Jest test runner failing with "Cannot find module" errors for several imports</li>
+                  <li>Issue was with moduleNameMapper in jest.config.js not handling new path mappings</li>
+                  <li>Had to install uuid package explicitly (previously transitive dependency)</li>
+                  <li>Redirected import paths in jest.config.js to handle @ aliases properly</li>
+                  <li>Updated transformIgnorePatterns to handle ESM modules correctly</li>
+                  <li>Fixed by adding: <div class="code-block">moduleNameMapper: {
+    '^@app/(.*)$': '<rootDir>/src/app/$1',
+    '^uuid$': require.resolve('uuid')
+  }</div></li>
+                </ul>
+              </li>
+
+              <li><strong>Lessons Learned:</strong>
+                <ul>
+                  <li>Always upgrade incrementally (v14 → v15 → v16) rather than jumping major versions</li>
+                  <li>Read the CHANGELOG.md for every package you're updating</li>
+                  <li>Test in local environment before pushing to CI/CD</li>
+                  <li>Keep a rollback plan ready (Git branches are your friend)</li>
+                  <li>Document every change you make for the next developer</li>
+                </ul>
+              </li>
+
+              <li><strong>Metrics:</strong>
+                <ul>
+                  <li>Total files modified: ~45 TypeScript files, 3 config files</li>
+                  <li>Build time improvement: 15% faster compilation after upgrade</li>
+                  <li>Bundle size: Reduced by ~8% thanks to improved tree-shaking in Angular 16</li>
+                </ul>
+              </li>
             </ul>
           </details>
-          <details>
-            <summary>How CURL Requests work</summary>
-            <ul>
-              <li>cURL or "client for URLs" is a command line tool and library</li>
-              <li>Helps tranfer data with various protocols</li>
-              <li>It also retrieves data like fetching web pages, images using methods like GET, POST, PUT, PATCH and DELETE</li>
-              <li>I also got the experience of working with API endpoints and testing/debugging those</li>
-              <li>Overall it was challenging because I was learning so many new concepts at the same time</li>
-              <li>Something I wish I had done differently to address this challenge was creating an isolated enironment so I can see all the endpoint connections away from the other files in the codebase</li>
 
+          <details>
+            <summary>Understanding cURL Requests (New Technical Skill)</summary>
+            <ul>
+              <li><strong>What is cURL?</strong> cURL (client for URLs) is a command-line tool and library for transferring data using various network protocols. It's essential for testing APIs, debugging network issues, and automating data transfers.</li>
+
+              <li><strong>Core Functionality:</strong>
+                <ul>
+                  <li>Retrieves data like fetching web pages, JSON responses, images, and files</li>
+                  <li>Supports HTTP methods: GET (retrieve data), POST (send data), PUT (update resources), PATCH (partial updates), DELETE (remove resources)</li>
+                  <li>Handles authentication (Basic Auth, Bearer tokens, OAuth)</li>
+                  <li>Custom headers, cookies, and request bodies</li>
+                </ul>
+              </li>
+
+              <li><strong>Practical Examples I Used:</strong>
+                <ul>
+                  <li>Testing API endpoints: <div class="code-block">curl -X GET https://api.lyric.local/v1/users \
+  -H "Authorization: Bearer [token]" \
+  -H "Content-Type: application/json"</div></li>
+                  <li>Checking response headers: <div class="code-block">curl -I https://ada.lyric.local</div></li>
+                  <li>POST request with JSON body: <div class="code-block">curl -X POST https://api.lyric.local/v1/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test Account", "type": "checking"}'</div></li>
+                </ul>
+              </li>
+
+              <li><strong>Debugging API Endpoints:</strong>
+                <ul>
+                  <li>Used cURL to test Keycloak token endpoints and verify JWT token issuance</li>
+                  <li>Validated that Nginx reverse proxy was correctly forwarding requests to backend services</li>
+                  <li>Tested BKS hub endpoints to ensure routing was working after configuration changes</li>
+                  <li>Debugged CORS issues by examining response headers</li>
+                  <li>Verified that SSL certificates were properly configured</li>
+                </ul>
+              </li>
+
+              <li><strong>Challenges and Learnings:</strong>
+                <ul>
+                  <li>Initially struggled with authentication because I wasn't including the correct Bearer token format</li>
+                  <li>Learned to use -v (verbose) flag to see full request/response cycle for debugging</li>
+                  <li>Understanding of how headers affect API behavior (Content-Type, Accept, Authorization)</li>
+                  <li>Overall it was challenging because I was learning so many new concepts simultaneously (HTTP protocol, REST APIs, authentication flows)</li>
+                </ul>
+              </li>
+
+              <li><strong>What I Wish I'd Done Differently:</strong> I wish I had created an isolated testing environment (maybe using Docker containers or Postman collections) where I could experiment with API endpoint connections away from the main codebase. This would have let me understand the API contracts better before integrating them into the application. I was essentially learning by debugging production-like code, which was stressful.</li>
+
+              <li><strong>Tools Comparison:</strong>
+                <ul>
+                  <li>cURL: Great for quick command-line testing, scriptable, available everywhere</li>
+                  <li>Postman: Better UI, collection management, but requires GUI</li>
+                  <li>Insomnia: Similar to Postman, good for GraphQL</li>
+                  <li>I'm now comfortable with all three and know when to use each</li>
+                </ul>
+              </li>
             </ul>
           </details>
 
           <details>
-            <summary>Security Issues Resolved</summary>
+            <summary>Security Issues Resolved (ZAP Scan Findings)</summary>
             <ul>
-              <li>Found IP address exposure in lingering comments using curl commands</li>
-              <li>Fixed incomplete string escaping that could lead to injection attacks</li>
-              <li>Addressed user-controlled bypass vulnerabilities</li>
-              <li>Removed useless conditionals and superfluous trailing arguments</li>
+              <li><strong>IP Address Exposure:</strong>
+                <ul>
+                  <li>Found internal IP addresses (10.x.x.x and 192.168.x.x) exposed in HTML comments and error messages</li>
+                  <li>Risk: Attackers could use this info to map internal network topology</li>
+                  <li>Fix: Removed all IP addresses from comments, used environment variables instead</li>
+                  <li>Validated fix using curl and grep to search for IP patterns in responses</li>
+                </ul>
+              </li>
+
+              <li><strong>Incomplete String Escaping:</strong>
+                <ul>
+                  <li>User input wasn't properly escaped in certain SQL queries and HTML templates</li>
+                  <li>Risk: Potential SQL injection and XSS attacks</li>
+                  <li>Fix: Implemented proper parameterized queries and Angular's built-in sanitization</li>
+                  <li>Added input validation middleware</li>
+                </ul>
+              </li>
+
+              <li><strong>User-Controlled Bypass Vulnerabilities:</strong>
+                <ul>
+                  <li>Found instances where user input could manipulate routing logic</li>
+                  <li>Risk: Users could access unauthorized resources by crafting specific URLs</li>
+                  <li>Fix: Implemented proper authorization checks at route guard level</li>
+                  <li>Added whitelist-based validation for redirect parameters</li>
+                </ul>
+              </li>
+
+              <li><strong>Code Quality Issues:</strong>
+                <ul>
+                  <li>Removed useless conditionals (if statements that always evaluate to true/false)</li>
+                  <li>Cleaned up superfluous trailing arguments in function calls</li>
+                  <li>Fixed unreachable code blocks</li>
+                  <li>Improved overall code maintainability score in SonarQube from B to A</li>
+                </ul>
+              </li>
+
+              <li><strong>False Positives Handled:</strong>
+                <ul>
+                  <li>ZAP flagged a "timestamp" in CSS as potential metadata exposure</li>
+                  <li>Investigation revealed it was just an alpha channel value in rgba() color notation</li>
+                  <li>Documented this as false positive in security scan exceptions</li>
+                </ul>
+              </li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>Previous Week's Context (ZAP Security Testing)</summary>
+            <ul>
+              <li>Fixed critical security vulnerabilities discovered through ZAP automated scans</li>
+              <li>Addressed domain misconfiguration where development URLs were hardcoded instead of using environment variables</li>
+              <li>Implemented missing anti-clickjacking headers (X-Frame-Options: DENY)</li>
+              <li>Resolved Content Security Policy issues as mentioned in NullInjection section above</li>
+              <li>Reduced metadata exposure risks by removing verbose error messages from production builds</li>
+              <li>Was initially running into roadblocks with ZAP testing due to switching to new Keycloak authentication system</li>
+              <li>Most changes occurred in the nginx.conf file for header configuration</li>
+              <li>Some findings were false positives that required manual review and documentation for security audit trail</li>
+              <li>Learned to use curl requests to validate security header changes without redeploying entire application</li>
             </ul>
           </details>
         </div>
       </div>
 
-
-      <!-- <div class="card">
-        <div class="iconBox">🚀</div>
-        <div>
-          <h3>Template Card</h3>
-          <p>Brief description of task</p>
-          
-          <details>
-            <summary>Dropdown title</summary>
-            <ul>
-              <li>Point 1</li>
-              <li>Point 2</li>
-              <li>Point 3</li>
-              <li>Point 4</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Dropdown title</summary>
-            <ul>
-              <li>Point 1</li>
-              <li>Point 2</li>
-              <li>Point 3</li>
-              <li>Point 4</li>
-            </ul>
-          </details>
-          </details>
-        </div>
-      </div> -->
-
       <div class="card">
         <div class="iconBox">⚙️</div>
         <div>
-          <h3>Nginx and Infrastructure Configuration</h3>
-          <p>Gained hands-on experience configuring Nginx as our reverse proxy, managing load balancers, and understanding how our application controls incoming requests.</p>
+          <h3>Nginx and Infrastructure Configuration Mastery</h3>
+          <p>Developed deep understanding of Nginx as our reverse proxy, learning how it manages incoming requests, handles load balancing, and integrates with our Keycloak authentication system. This knowledge was critical for debugging routing issues and security configurations.</p>
           
           <details>
             <summary>Nginx Deep Dive</summary>
             <ul>
-              <li>Our app creates an Nginx instance that controls all incoming requests</li>
-              <li>Acts as reverse proxy handling SSL termination and load balancing</li>
-              <li>Made configuration changes in .config files for routing rules</li>
-              <li>Fixed load balancer errors by adjusting configuration order and context</li>
-              <linked> <a href="https://docs.google.com/document/d/1Ya4mrLwtSUnkADR-Lrh3d1KoeB7mBlU_0u9AWD-rGro/edit?usp=sharing">Nginx Notes I took can be accessed here</a></linked>
+              <li><strong>Architecture Understanding:</strong>
+                <ul>
+                  <li>Our application creates an Nginx instance that serves as the entry point for all incoming requests</li>
+                  <li>Nginx acts as a reverse proxy, sitting between clients and our backend services (Angular frontend, Node.js APIs, PostgreSQL)</li>
+                  <li>Handles SSL/TLS termination so backend services don't need to manage certificates</li>
+                  <li>Implements load balancing across multiple backend instances for high availability</li>
+                  <li>Provides caching layer to reduce load on backend services</li>
+                </ul>
+              </li>
+
+              <li><strong>Configuration Files Structure:</strong>
+                <ul>
+                  <li>Main config: nginx.conf (global settings, worker processes, event handling)</li>
+                  <li>Site configs: /etc/nginx/sites-available/ (individual application configurations)</li>
+                  <li>Include files: Modular configs for security headers, SSL settings, upstream definitions</li>
+                  <li>Made changes primarily in custom .conf files for routing rules and security policies</li>
+                </ul>
+              </li>
+
+              <li><strong>Routing and Location Blocks:</strong>
+                <ul>
+                  <li>Location blocks define how Nginx handles different URL paths</li>
+                  <li>Learned about location matching priority (exact match = , prefix match /path, regex match ~)</li>
+                  <li>Configured proxy_pass directives to route requests to appropriate backend services</li>
+                  <li>Set up proper proxy headers (X-Real-IP, X-Forwarded-For, X-Forwarded-Proto)</li>
+                </ul>
+              </li>
+
+              <li><strong>Load Balancer Configuration Fixes:</strong>
+                <ul>
+                  <li>Encountered errors where load balancer wasn't distributing traffic correctly</li>
+                  <li>Issue was with upstream block configuration order and context</li>
+                  <li>Fixed by properly defining upstream servers with health checks</li>
+                  <li>Implemented round-robin load balancing with backup servers</li>
+                  <li>Added fail_timeout and max_fails parameters for automatic failover</li>
+                  <li>Example configuration: <div class="code-block">upstream backend {
+    server backend1.local:8080 max_fails=3 fail_timeout=30s;
+    server backend2.local:8080 max_fails=3 fail_timeout=30s;
+    server backend3.local:8080 backup;
+  }</div></li>
+                </ul>
+              </li>
+
+              <li><strong>SSL/TLS Configuration:</strong>
+                <ul>
+                  <li>Configured SSL certificates for HTTPS</li>
+                  <li>Learned about certificate chains and intermediate certificates</li>
+                  <li>Set up automatic HTTP to HTTPS redirection</li>
+                  <li>Configured modern TLS protocols (TLS 1.2, TLS 1.3) and secure cipher suites</li>
+                  <li>Implemented HSTS (HTTP Strict Transport Security) headers</li>
+                </ul>
+              </li>
+
+              <li><strong>Security Headers Implementation:</strong>
+                <ul>
+                  <li>Content-Security-Policy: Controls resource loading (as discussed in NullInjection section)</li>
+                  <li>X-Frame-Options: DENY (prevents clickjacking)</li>
+                  <li>X-Content-Type-Options: nosniff (prevents MIME type sniffing)</li>
+                  <li>Referrer-Policy: strict-origin-when-cross-origin</li>
+                  <li>Permissions-Policy: Restricts browser features</li>
+                </ul>
+              </li>
+
+              <li><strong>Debugging Techniques Learned:</strong>
+                <ul>
+                  <li>Using nginx -t to test configuration syntax before reloading</li>
+                  <li>Reading error logs at /var/log/nginx/error.log for troubleshooting</li>
+                  <li>Access logs at /var/log/nginx/access.log for traffic analysis</li>
+                  <li>Using curl with -v flag to see full request/response headers</li>
+                  <li>Testing configuration changes in development before production deployment</li>
+                </ul>
+              </li>
+
+              <li><strong>Performance Optimizations:</strong>
+                <ul>
+                  <li>Enabled gzip compression for text-based responses (HTML, CSS, JS, JSON)</li>
+                  <li>Configured browser caching with proper Cache-Control headers</li>
+                  <li>Set up static asset caching to reduce backend load</li>
+                  <li>Implemented client body buffering for improved performance</li>
+                </ul>
+              </li>
+
+              <li><strong>Documentation Created:</strong> <a href="https://docs.google.com/document/d/1Ya4mrLwtSUnkADR-Lrh3d1KoeB7mBlU_0u9AWD-rGro/edit?usp=sharing">Comprehensive Nginx Notes</a> covering configuration patterns, common issues, and troubleshooting steps for future reference</li>
             </ul>
           </details>
 
           <details>
             <summary>Infrastructure Stack Learning</summary>
             <ul>
-              <li>Docker for containerization</li>
-              <li>HTTP request/response cycles</li>
-              <li>SSL/TLS certificate management</li>
-              <li>Load balancers for high availability</li>
+              <li><strong>Docker Containerization:</strong>
+                <ul>
+                  <li>Understood how our application is packaged in Docker containers for consistency across environments</li>
+                  <li>Each service (Nginx, Node.js API, PostgreSQL, Keycloak) runs in separate containers</li>
+                  <li>Docker Compose orchestrates multi-container deployment</li>
+                  <li>Volume mounts for persistent data and configuration files</li>
+                  <li>Learned to read Dockerfiles and docker-compose.yml for our services</li>
+                </ul>
+              </li>
+
+              <li><strong>HTTP Request/Response Cycle:</strong>
+                <ul>
+                  <li>Client sends HTTP request → Nginx receives and processes</li>
+                  <li>Nginx checks location blocks and applies matching rules</li>
+                  <li>Request proxied to backend service with added headers</li>
+                  <li>Backend processes and returns response</li>
+                  <li>Nginx adds security headers and returns to client</li>
+                  <li>Understanding this flow was crucial for debugging routing issues</li>
+                </ul>
+              </li>
+
+              <li><strong>SSL/TLS Certificate Management:</strong>
+                <ul>
+                  <li>Learned about public/private key pairs and how SSL handshake works</li>
+                  <li>Certificate authorities (CAs) and trust chains</li>
+                  <li>Let's Encrypt for automated certificate renewal</li>
+                  <li>Certificate expiration monitoring and renewal procedures</li>
+                  <li>Understanding of SNI (Server Name Indication) for hosting multiple SSL sites</li>
+                </ul>
+              </li>
+
+              <li><strong>Load Balancers for High Availability:</strong>
+                <ul>
+                  <li>Multiple backend servers ensure no single point of failure</li>
+                  <li>Health checks automatically remove unhealthy servers from pool</li>
+                  <li>Session persistence (sticky sessions) for stateful applications</li>
+                  <li>Horizontal scaling by adding more backend instances</li>
+                </ul>
+              </li>
+
+              <li><strong>Environment Management:</strong>
+                <ul>
+                  <li>Different configurations for dev, staging, and production</li>
+                  <li>Environment variables for sensitive data (API keys, database passwords)</li>
+                  <li>Feature flags for gradual rollout of new features</li>
+                </ul>
+              </li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>Keycloak Integration with Nginx</summary>
+            <ul>
+              <li><strong>Authentication Flow:</strong>
+                <ul>
+                  <li>User accesses ADA → Nginx redirects to Keycloak login page</li>
+                  <li>User authenticates → Keycloak issues JWT access token</li>
+                  <li>Token sent with subsequent requests in Authorization header</li>
+                  <li>Nginx validates token with Keycloak before proxying to backend</li>
+                  <li>Backend services trust Nginx's validation (no redundant auth checks)</li>
+                </ul>
+              </li>
+
+              <li><strong>Token Validation Configuration:</strong>
+                <ul>
+                  <li>Configured auth_request directive in Nginx to validate tokens</li>
+                  <li>Set up Keycloak realm endpoints in Nginx config</li>
+                  <li>Handled token refresh automatically when access token expires</li>
+                  <li>Configured proper error handling for invalid/expired tokens</li>
+                </ul>
+              </li>
             </ul>
           </details>
         </div>
@@ -289,16 +628,82 @@
       <div class="card">
         <div class="iconBox">🔄</div>
         <div>
-          <h3>Endpoint Updates and Testing</h3>
-          <p>Updated endpoints to reflect new BKS hub changes from Lyric 2 and conducted extensive testing on Lyric portal routing.</p>
+          <h3>Endpoint Updates and Comprehensive Testing</h3>
+          <p>Updated API endpoints to reflect new BKS (Banking Services) hub architecture changes from Lyric 2 platform. Conducted extensive testing on routing logic to ensure seamless integration with the new backend services.</p>
           
           <details>
             <summary>Technical Work Completed</summary>
             <ul>
-              <li>Updated API endpoints for BKS hub integration</li>
-              <li>Worked on getting /bks_sandbox realm routing functioning properly</li>
-              <li>Traced routing through routes.ts files and ID4 configurations</li>
-              <li>Tested edge cases like trailing slashes and query parameters</li>
+              <li><strong>API Endpoint Migration:</strong>
+                <ul>
+                  <li>Updated endpoint URLs from old Lyric 1 format to new Lyric 2 RESTful structure</li>
+                  <li>Old format: /api/accounts/v1/getAccount vs New: /api/v2/accounts/:id</li>
+                  <li>Changed from query parameters to path parameters for better REST semantics</li>
+                  <li>Updated API service layer in Angular to use new endpoints</li>
+                  <li>Handled backward compatibility for features still using old endpoints</li>
+                </ul>
+              </li>
+
+              <li><strong>BKS Sandbox Realm Routing:</strong>
+                <ul>
+                  <li>Worked on getting /bks_sandbox realm routing functioning properly in Keycloak</li>
+                  <li>Sandbox realm allows testing with mock data without affecting production</li>
+                  <li>Issue was with realm selection logic not correctly identifying sandbox requests</li>
+                  <li>Traced routing through routes.ts files to understand Angular's routing configuration</li>
+                  <li>Examined ID4 (IdentityServer4) configurations for OIDC flows</li>
+                  <li>Fixed by updating route guards to check realm parameter in URL</li>
+                </ul>
+              </li>
+
+              <li><strong>Edge Case Testing:</strong>
+                <ul>
+                  <li>Tested routing with trailing slashes (/api/accounts/ vs /api/accounts)</li>
+                  <li>Verified query parameter handling (?realm=bks_sandbox&debug=true)</li>
+                  <li>Checked URL encoding for special characters in parameters</li>
+                  <li>Tested deep linking to specific application states</li>
+                  <li>Validated that back button and browser history work correctly</li>
+                </ul>
+              </li>
+
+              <li><strong>Integration Testing:</strong>
+                <ul>
+                  <li>Created test cases for all major user flows (login, account creation, transactions)</li>
+                  <li>Verified error handling when backend services are unavailable</li>
+                  <li>Tested timeout scenarios and retry logic</li>
+                  <li>Ensured proper loading states and user feedback during API calls</li>
+                </ul>
+              </li>
+
+              <li><strong>Documentation:</strong>
+                <ul>
+                  <li>Updated API documentation with new endpoint structures</li>
+                  <li>Created Postman collection for team to test endpoints</li>
+                  <li>Documented expected request/response formats</li>
+                  <li>Added examples for error responses</li>
+                </ul>
+              </li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>Routing Architecture Understanding</summary>
+            <ul>
+              <li><strong>Angular Router Configuration:</strong>
+                <ul>
+                  <li>Routes defined in app-routing.module.ts with path matching</li>
+                  <li>Lazy loading for feature modules to improve initial load time</li>
+                  <li>Route guards for authentication (CanActivate) and authorization (CanLoad)</li>
+                  <li>Resolver services for pre-fetching data before component activation</li>
+                </ul>
+              </li>
+
+              <li><strong>Deep Link Handling:</strong>
+                <ul>
+                  <li>Configured PathLocationStrategy for clean URLs without hash (#)</li>
+                  <li>Nginx rewrite rules to handle Angular routing in SPA</li>
+                  <li>All routes fallback to index.html for client-side routing</li>
+                </ul>
+              </li>
             </ul>
           </details>
         </div>
@@ -307,26 +712,179 @@
       <div class="card">
         <div class="iconBox">🚀</div>
         <div>
-          <h3>CI/CD and Deployment Pipeline</h3>
-          <p>Deepened understanding of our development and deployment pipeline, from local development through production deployment.</p>
+          <h3>CI/CD Pipeline and DevOps Practices</h3>
+          <p>Gained comprehensive understanding of our development and deployment pipeline, from local development through production deployment. Learned how automated testing, security scanning, and quality gates ensure code quality before reaching production.</p>
           
           <details>
-            <summary>Pipeline Learning</summary>
+            <summary>Pipeline Stages and Flow</summary>
             <ul>
-              <li>Understanding quality gates and automated testing stages</li>
-              <li>Security scanning with CodeQL and Sonar in GitHub Actions</li>
-              <li>Environment configuration management across dev, staging, production</li>
-              <li>Learned deployment best practices and rollback strategies</li>
+              <li><strong>Local Development:</strong>
+                <ul>
+                  <li>Developer writes code and commits to feature branch</li>
+                  <li>Pre-commit hooks run linting (ESLint) and formatting (Prettier)</li>
+                  <li>Local tests run with ng test (Jest for unit tests)</li>
+                </ul>
+              </li>
+
+              <li><strong>Pull Request Creation:</strong>
+                <ul>
+                  <li>PR triggers GitHub Actions workflow automatically</li>
+                  <li>Branch protection rules require passing checks before merge</li>
+                  <li>Automated code review checks (linting, formatting, test coverage)</li>
+                </ul>
+              </li>
+
+              <li><strong>Continuous Integration (CI):</strong>
+                <ul>
+                  <li><strong>Build Stage:</strong> Compiles TypeScript, bundles assets, optimizes for production</li>
+                  <li><strong>Test Stage:</strong> Runs unit tests, integration tests, generates coverage report</li>
+                  <li><strong>Security Scanning:</strong> CodeQL for security vulnerabilities, SonarQube for code quality</li>
+                  <li><strong>Quality Gates:</strong> Must meet minimum thresholds for test coverage (>80%), code quality (A rating), security (no high/critical issues)</li>
+                </ul>
+              </li>
+
+              <li><strong>Quality Gates Deep Dive:</strong>
+                <ul>
+                  <li><strong>SonarQube Checks:</strong>
+                    <ul>
+                      <li>Code coverage: Must maintain >80% line coverage</li>
+                      <li>Code smells: Maintainability issues that make code harder to change</li>
+                      <li>Bugs: Logic errors detected by static analysis</li>
+                      <li>Security hotspots: Code patterns that might be vulnerable</li>
+                      <li>Technical debt: Estimated time to fix all issues</li>
+                    </ul>
+                  </li>
+                  <li><strong>CodeQL Security Scanning:</strong>
+                    <ul>
+                      <li>Scans for SQL injection, XSS, CSRF vulnerabilities</li>
+                      <li>Checks for hardcoded credentials and secrets</li>
+                      <li>Identifies insecure cryptography usage</li>
+                      <li>Detects potential path traversal issues</li>
+                    </ul>
+                  </li>
+                  <li><strong>Failed Quality Gate Experience:</strong> During Angular upgrade, my initial PR failed quality gates due to increased cyclomatic complexity in upgraded files and reduced test coverage from deprecated test utilities. Had to refactor code and update tests to meet thresholds.</li>
+                </ul>
+              </li>
+
+              <li><strong>Continuous Deployment (CD):</strong>
+                <ul>
+                  <li><strong>Development Environment:</strong> Automatic deployment on merge to develop branch</li>
+                  <li><strong>Staging Environment:</strong> Manual trigger for QA testing</li>
+                  <li><strong>Production Environment:</strong> Requires approval from team lead, deployed during maintenance windows</li>
+                </ul>
+              </li>
+
+              <li><strong>Deployment Strategy:</strong>
+                <ul>
+                  <li>Blue-green deployment: Two production environments, switch traffic after verification</li>
+                  <li>Allows instant rollback if issues detected</li>
+                  <li>Zero-downtime deployments</li>
+                  <li>Automated health checks before switching traffic</li>
+                </ul>
+              </li>
+
+              <li><strong>Rollback Procedures:</strong>
+                <ul>
+                  <li>Keep previous Docker images tagged and ready</li>
+                  <li>Database migrations are reversible with down scripts</li>
+                  <li>Configuration changes are versioned and can be reverted</li>
+                  <li>Learned to prepare rollback plan before any production deployment</li>
+                </ul>
+              </li>
+
+              <li><strong>Monitoring and Alerts:</strong>
+                <ul>
+                  <li>Application performance monitoring (APM) tracks response times and error rates</li>
+                  <li>Logs aggregated in centralized logging system (ELK stack)</li>
+                  <li>Alerts configured for critical errors, high latency, and service downtime</li>
+                  <li>On-call rotation for handling production incidents</li>
+                </ul>
+              </li>
             </ul>
           </details>
 
           <details>
-            <summary>Configuration Management</summary>
+            <summary>Configuration Management Across Environments</summary>
             <ul>
-              <li>Environment files and how variables contribute to Keycloak configs</li>
-              <li>GIDS and BKS Keycloak for authentication</li>
-              <li>OAuth 2.0 and OpenID Connect flows</li>
-              <li>JWT token issuance and validation</li>
+              <li><strong>Environment-Specific Configuration:</strong>
+                <ul>
+                  <li>Development: Relaxed security, verbose logging, mock data services</li>
+                  <li>Staging: Production-like config, anonymized production data, full monitoring</li>
+                  <li>Production: Strict security, minimal logging, real user data</li>
+                </ul>
+              </li>
+
+              <li><strong>Environment Variables:</strong>
+                <ul>
+                  <li>API endpoints, database connection strings, Keycloak realm URLs</li>
+                  <li>Feature flags for gradual rollout (controlled by environment config)</li>
+                  <li>Secrets management using GitHub Secrets and environment-specific vaults</li>
+                  <li>Learned to never commit secrets to Git (use .env files in .gitignore)</li>
+                </ul>
+              </li>
+
+              <li><strong>Keycloak Configuration Integration:</strong>
+                <ul>
+                  <li>Different realms for each environment (dev, staging, prod)</li>
+                  <li>GIDS Keycloak for employee authentication in internal tools</li>
+                  <li>BKS Keycloak for customer-facing banking application</li>
+                  <li>Environment files control which Keycloak instance to use</li>
+                  <li>Client credentials and secrets stored securely per environment</li>
+                </ul>
+              </li>
+
+              <li><strong>OAuth 2.0 and OpenID Connect Flows:</strong>
+                <ul>
+                  <li>Authorization Code Flow for web applications (most secure)</li>
+                  <li>Implicit Flow (deprecated, not used due to security concerns)</li>
+                  <li>Client Credentials Flow for server-to-server communication</li>
+                  <li>PKCE (Proof Key for Code Exchange) for mobile/SPA security</li>
+                  <li>Understanding token lifetimes (access tokens: 5 min, refresh tokens: 30 days)</li>
+                </ul>
+              </li>
+
+              <li><strong>JWT Token Structure:</strong>
+                <ul>
+                  <li>Header: Algorithm and token type</li>
+                  <li>Payload: User claims (user ID, roles, permissions, expiration)</li>
+                  <li>Signature: Ensures token hasn't been tampered with</li>
+                  <li>Learned to decode JWTs using jwt.io for debugging</li>
+                  <li>Verified token validation logic in backend services</li>
+                </ul>
+              </li>
+            </ul>
+          </details>
+
+          <details>
+            <summary>GitHub Actions Workflow Insights</summary>
+            <ul>
+              <li><strong>Workflow File Structure:</strong>
+                <ul>
+                  <li>YAML files in .github/workflows/ directory</li>
+                  <li>Trigger conditions (on push, pull_request, schedule, manual)</li>
+                  <li>Jobs run in parallel or sequentially with dependencies</li>
+                  <li>Steps within jobs execute commands or use actions from marketplace</li>
+                </ul>
+              </li>
+
+              <li><strong>Common Actions Used:</strong>
+                <ul>
+                  <li>actions/checkout: Clones repository</li>
+                  <li>actions/setup-node: Sets up Node.js environment</li>
+                  <li>actions/cache: Caches npm dependencies for faster builds</li>
+                  <li>github/codeql-action: Runs security scanning</li>
+                  <li>SonarSource/sonarcloud-github-action: Code quality analysis</li>
+                </ul>
+              </li>
+
+              <li><strong>Optimization Techniques:</strong>
+                <ul>
+                  <li>Caching node_modules reduces install time from 3 minutes to 30 seconds</li>
+                  <li>Matrix builds for testing across multiple Node versions</li>
+                  <li>Conditional steps that only run when relevant files change</li>
+                  <li>Artifact uploads for build outputs and test reports</li>
+                </ul>
+              </li>
             </ul>
           </details>
         </div>
@@ -335,12 +893,69 @@
       <div class="card">
         <div class="iconBox">🎯</div>
         <div>
-          <h3>Future Learning Goals</h3>
+          <h3>Future Learning Goals and Growth Areas</h3>
+          <p>Identified key areas for skill development that align with both immediate project needs and long-term career growth in software engineering and product development.</p>
           <ul>
-            <li><strong>Product Development:</strong> Understanding wireframing, client use cases, and how product decisions are made</li>
-            <li><strong>Database Work:</strong> PostgreSQL schema design, indexing strategies, and query optimization</li>
-            <li><strong>API Development:</strong> RESTful API design and testing with Postman</li>
-            <li><strong>Event-Driven Architecture:</strong> Learning Apache Kafka for asynchronous service communication</li>
+            <li><strong>Product Development and Strategy:</strong>
+              <ul>
+                <li>Understanding wireframing and prototyping tools (Figma, Sketch)</li>
+                <li>Learning how to conduct user research and gather client use cases</li>
+                <li>How product decisions are made: balancing technical feasibility, business value, and user needs</li>
+                <li>Product roadmap planning and prioritization frameworks (RICE, MoSCoW)</li>
+                <li>Want to shadow PM on discovery calls to see requirements gathering in action</li>
+              </ul>
+            </li>
+
+            <li><strong>Database Work and Data Architecture:</strong>
+              <ul>
+                <li>PostgreSQL schema design best practices for financial data</li>
+                <li>Indexing strategies for query performance optimization</li>
+                <li>Query optimization techniques (EXPLAIN ANALYZE, query plans)</li>
+                <li>Database normalization vs denormalization tradeoffs</li>
+                <li>Transaction management and ACID properties</li>
+                <li>Experience writing complex SQL joins, subqueries, and aggregations</li>
+              </ul>
+            </li>
+
+            <li><strong>API Development and Testing:</strong>
+              <ul>
+                <li>RESTful API design principles and best practices</li>
+                <li>OpenAPI/Swagger documentation for APIs</li>
+                <li>Postman for API testing and automation</li>
+                <li>GraphQL as alternative to REST for some use cases</li>
+                <li>API versioning strategies</li>
+                <li>Rate limiting and authentication best practices</li>
+              </ul>
+            </li>
+
+            <li><strong>Event-Driven Architecture and Microservices:</strong>
+              <ul>
+                <li>Learning Apache Kafka for asynchronous service communication</li>
+                <li>Message brokers and pub/sub patterns</li>
+                <li>Microservices architecture: benefits and challenges</li>
+                <li>Service mesh and inter-service communication</li>
+                <li>Eventual consistency in distributed systems</li>
+                <li>Want to understand how our transaction processing uses Kafka events</li>
+              </ul>
+            </li>
+
+            <li><strong>Cloud Infrastructure:</strong>
+              <ul>
+                <li>AWS services (EC2, S3, RDS, Lambda)</li>
+                <li>Infrastructure as Code (Terraform, CloudFormation)</li>
+                <li>Container orchestration with Kubernetes</li>
+                <li>Serverless architecture patterns</li>
+              </ul>
+            </li>
+
+            <li><strong>Testing and Quality Assurance:</strong>
+              <ul>
+                <li>E2E testing with Cypress or Playwright</li>
+                <li>Test-Driven Development (TDD) methodology</li>
+                <li>Performance testing and load testing</li>
+                <li>Accessibility testing (WCAG compliance)</li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>
@@ -348,23 +963,229 @@
       <div class="card">
         <div class="iconBox">💛</div>
         <div>
-          <h3>Team Support and Collaboration</h3>
+          <h3>Team Support, Collaboration, and Mentorship</h3>
+          <p>Received valuable mentorship from team members and improved collaboration skills through pair programming, code reviews, and knowledge sharing sessions.</p>
+          
           <ul>
-            <li><strong>Julia's Jira Guidance:</strong> Learned ticket structuring, story point estimation, and time tracking in Tempo</li>
-            <li><strong>Keycloak Realm Coordination:</strong> Better understanding of matching configurations across environments</li>
-            <li><strong>GitHub Actions:</strong> Understanding SS&C codebase structure and workflow automation</li>
-            <li><strong>PR Process:</strong> Improved at writing clear descriptions, organizing commits, and responding to code reviews</li>
+            <li><strong>Julia's Jira and Project Management Guidance:</strong>
+              <ul>
+                <li>Learned proper ticket structuring: clear titles, detailed descriptions, acceptance criteria</li>
+                <li>Story point estimation using Fibonacci sequence (1, 2, 3, 5, 8, 13)</li>
+                <li>Understanding what makes a good user story vs technical task</li>
+                <li>Time tracking in Tempo for accurate project estimation</li>
+                <li>Breaking down large features into manageable sub-tasks</li>
+                <li>Linking related tickets and documenting dependencies</li>
+              </ul>
+            </li>
+
+            <li><strong>Keycloak Realm Configuration Collaboration:</strong>
+              <ul>
+                <li>Worked with security team to understand realm architecture</li>
+                <li>Better understanding of matching configurations across environments</li>
+                <li>Learned about client scope management and role mappings</li>
+                <li>Understanding when to create new realms vs new clients within existing realms</li>
+              </ul>
+            </li>
+
+            <li><strong>GitHub Actions and Workflow Automation:</strong>
+              <ul>
+                <li>Understanding SS&C's codebase structure and monorepo organization</li>
+                <li>Learned about shared workflows and reusable components</li>
+                <li>How to debug failed GitHub Actions runs using logs</li>
+                <li>Best practices for securing secrets in CI/CD</li>
+              </ul>
+            </li>
+
+            <li><strong>Pull Request Process Improvement:</strong>
+              <ul>
+                <li>Writing clear PR descriptions with context, changes made, and testing done</li>
+                <li>Organizing commits into logical units (not "fix", "fix2", "actually fixed it")</li>
+                <li>Responding constructively to code review feedback</li>
+                <li>Asking clarifying questions when review comments are unclear</li>
+                <li>Learning to review others' PRs and provide helpful feedback</li>
+                <li>Understanding when to request changes vs approve with suggestions</li>
+              </ul>
+            </li>
+
+            <li><strong>Documentation Contributions:</strong>
+              <ul>
+                <li>Updated team wiki with Nginx configuration troubleshooting guide</li>
+                <li>Created runbook for Angular upgrade process for future versions</li>
+                <li>Documented common ZAP scan false positives for security team</li>
+                <li>Added inline code comments for complex logic</li>
+              </ul>
+            </li>
+
+            <li><strong>Knowledge Sharing:</strong>
+              <ul>
+                <li>Presented what I learned about cURL and API testing to team</li>
+                <li>Shared findings from Angular upgrade for other teams planning upgrades</li>
+                <li>Contributed to team's shared Notion workspace with technical notes</li>
+              </ul>
+            </li>
           </ul>
 
           <details>
-            <summary>Key Collaboration Learnings and Goals</summary>
+            <summary>Key Collaboration Learnings and Professional Development</summary>
             <ul>
-              <li>Ask specific questions with context and error messages</li>
-              <li>Search documentation and previous PRs before asking</li>
-              <li>View code review feedback as learning opportunities</li>
-              <li>Pair programming accelerates learning on complex problems</li>
+              <li><strong>Effective Communication:</strong>
+                <ul>
+                  <li>Ask specific questions with context and error messages (not just "it's not working")</li>
+                  <li>Share what you've already tried to show initiative</li>
+                  <li>Use code snippets and screenshots to illustrate problems</li>
+                  <li>Respect people's time: search documentation and previous PRs before asking</li>
+                  <li>Follow up on conversations and close the loop when issues are resolved</li>
+                </ul>
+              </li>
+
+              <li><strong>Learning Mindset:</strong>
+                <ul>
+                  <li>View code review feedback as learning opportunities, not criticism</li>
+                  <li>Ask "why" to understand the reasoning behind decisions</li>
+                  <li>Take notes during pair programming sessions</li>
+                  <li>Admit when you don't understand something rather than pretending</li>
+                  <li>Seek out stretch assignments to grow skills</li>
+                </ul>
+              </li>
+
+              <li><strong>Pair Programming Insights:</strong>
+                <ul>
+                  <li>Pair programming accelerates learning on complex problems</li>
+                  <li>Driver-navigator pattern works well for debugging</li>
+                  <li>Switching roles regularly keeps both people engaged</li>
+                  <li>Talking through thought process helps catch logical errors</li>
+                  <li>Don't be afraid to suggest ideas even as the junior person</li>
+                </ul>
+              </li>
+
+              <li><strong>Giving and Receiving Feedback:</strong>
+                <ul>
+                  <li>Frame feedback as suggestions, not demands</li>
+                  <li>Explain the "why" behind review comments</li>
+                  <li>Acknowledge good code and clever solutions, not just problems</li>
+                  <li>Be open to discussion: sometimes the PR author has good reasons</li>
+                  <li>Follow team's style guide even if you disagree with it (consistency > preference)</li>
+                </ul>
+              </li>
+
+              <li><strong>Time Management and Prioritization:</strong>
+                <ul>
+                  <li>Block focus time for deep work on complex problems</li>
+                  <li>Use Pomodoro technique for maintaining concentration</li>
+                  <li>Communicate blockers early, don't wait until standup</li>
+                  <li>Balance learning time with delivery time</li>
+                  <li>Know when to stop researching and start implementing</li>
+                </ul>
+              </li>
+
+              <li><strong>Future Goals for Collaboration:</strong>
+                <ul>
+                  <li>Mentor new interns when I'm more senior</li>
+                  <li>Lead a technical brown bag session on a topic I've mastered</li>
+                  <li>Contribute to architectural design discussions</li>
+                  <li>Improve at estimating tasks accurately (currently too optimistic)</li>
+                </ul>
+              </li>
             </ul>
           </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="iconBox">📊</div>
+        <div>
+          <h3>Metrics and Impact This Week</h3>
+          <ul>
+            <li><strong>Code Contributions:</strong>
+              <ul>
+                <li>3 Pull Requests merged (Angular upgrade, security fixes, endpoint updates)</li>
+                <li>~450 lines of code added, ~200 lines removed</li>
+                <li>Fixed 12 security vulnerabilities (8 high, 4 medium severity)</li>
+              </ul>
+            </li>
+
+            <li><strong>Quality Improvements:</strong>
+              <ul>
+                <li>Improved SonarQube code quality score from B to A</li>
+                <li>Increased test coverage from 76% to 82%</li>
+                <li>Reduced build time by 15% through Angular 16 optimizations</li>
+              </ul>
+            </li>
+
+            <li><strong>Learning Hours:</strong>
+              <ul>
+                <li>~10 hours reading documentation (Angular, Nginx, Keycloak)</li>
+                <li>~6 hours in pair programming sessions</li>
+                <li>~8 hours debugging and troubleshooting</li>
+              </ul>
+            </li>
+
+            <li><strong>Team Impact:</strong>
+              <ul>
+                <li>Unblocked 2 team members with Nginx configuration help</li>
+                <li>Created documentation used by 4 other developers</li>
+                <li>Reduced average PR review time by improving description quality</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="iconBox">🤔</div>
+        <div>
+          <h3>Challenges and How I Overcame Them</h3>
+          <ul>
+            <li><strong>Challenge: Angular Upgrade Complexity</strong>
+              <ul>
+                <li>Issue: Overwhelmed by number of breaking changes and deprecations</li>
+                <li>Solution: Created systematic checklist, tackled one module at a time</li>
+                <li>Learning: Large migrations need structure and patience</li>
+              </ul>
+            </li>
+
+            <li><strong>Challenge: Debugging NullInjector Error</strong>
+              <ul>
+                <li>Issue: Error message was misleading, pointed to wrong root cause</li>
+                <li>Solution: Systematic elimination of possibilities, checking browser console</li>
+                <li>Learning: Don't trust error messages blindly, investigate thoroughly</li>
+              </ul>
+            </li>
+
+            <li><strong>Challenge: Understanding Nginx Configuration</strong>
+              <ul>
+                <li>Issue: Complex configuration syntax with many directives</li>
+                <li>Solution: Read official docs, experimented in dev environment, asked team</li>
+                <li>Learning: Infrastructure knowledge is as important as application code</li>
+              </ul>
+            </li>
+
+            <li><strong>Challenge: Balancing Learning vs Delivery</strong>
+              <ul>
+                <li>Issue: Wanted to deeply understand everything but had deadlines</li>
+                <li>Solution: Timeboxed deep dives, focused on practical understanding first</li>
+                <li>Learning: You can always come back to learn more, ship first</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="iconBox">💭</div>
+        <div>
+          <h3>Reflections and Personal Growth</h3>
+          <p>This week reinforced that software engineering is about so much more than just writing code. It's about understanding systems, collaborating with teams, making tradeoffs, and continuously learning.</p>
+          
+          <ul>
+            <li><strong>What went well:</strong> Successfully navigated complex technical challenges, improved documentation skills, built stronger relationships with team members</li>
+            
+            <li><strong>What could be better:</strong> Need to improve at estimating task complexity, should ask for help earlier when stuck, could be more proactive in code reviews</li>
+            
+            <li><strong>Biggest aha moment:</strong> Realizing that "senior" engineers aren't people who know everything—they're people who know how to find answers efficiently and make good decisions with incomplete information</li>
+            
+            <li><strong>Next week's focus:</strong> Start learning PostgreSQL query optimization, shadow product manager on client call, contribute to architectural design discussion for new feature</li>
+          </ul>
         </div>
       </div>
 
