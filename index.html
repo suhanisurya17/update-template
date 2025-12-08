@@ -129,14 +129,14 @@
 
     <!-- HEADER -->
     <div class="head">
-      <h1 class="title">Weekly Update: Suhani - Week of November 17th</h1>
+      <h1 class="title">Weekly Update: Suhani - Weeks of November 17th - December 8th</h1>
       <p class="subtitle">Snapshot of wins, progress, and learning at my internship with SS&C Technologies</p>
       <div class="rule"></div>
     </div>
 
     <!-- 1) KEY WINS -->
     <div class="section" id="wins">
-      <h2 class="section-label"><span class="bar"></span> Key Wins (This Week)</h2>
+      <h2 class="section-label"><span class="bar"></span> Key Wins</h2>
 
       <div class="card">
         <div class="iconBox">🛠️</div>
@@ -230,6 +230,30 @@
           </details>
         </div>
       </div>
+
+
+      <div class="card">
+        <div class="iconBox">🔧</div>
+        <div>
+          <h3>Upcoming: GraphQL Production Server Error Resolution</h3>
+          <p>Tasked with investigating and resolving critical GraphQL server errors occurring in production environment. This will involve deep diving into server logs, understanding GraphQL query patterns, and implementing fixes to stabilize the API layer.</p>
+          
+          <details>
+            <summary>Project Scope and Objectives</summary>
+            <ul>
+              <li><strong>Problem Statement:</strong>
+                <ul>
+                  <li>Production GraphQL server experiencing intermittent errors</li>
+                  <li>Need to identify root causes and implement sustainable fixes</li>
+                  <li>Minimize downtime and impact on end users</li>
+                  <li>Ensure fixes are properly tested before deployment</li>
+                </ul>
+              </li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
 
       <div class="card">
         <div class="iconBox">🔒</div>
@@ -451,7 +475,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <!-- <div class="card">
         <div class="iconBox">⚙️</div>
         <div>
           <h3>Nginx and Infrastructure Configuration Mastery</h3>
@@ -623,8 +647,75 @@
             </ul>
           </details>
         </div>
-      </div>
+      </div> -->
 
+
+<div class="card">
+  <div class="iconBox">🧪</div>
+  <div>
+    <h3>Unit Testing for Authentication Service</h3>
+    <p>Wrote comprehensive unit tests for the AuthenticationService to validate Keycloak integration and improve code coverage after the Angular upgrade.</p>
+    
+    <details>
+      <summary>Test Cases Written</summary>
+      <ul>
+        <li><strong>Service Creation:</strong> Confirms that AuthenticationService is instantiated successfully</li>
+        
+        <li><strong>ngOnInit Lifecycle:</strong> Verifies that connectToKeycloak is called when the service initializes</li>
+        
+        <li><strong>connectToKeycloak (Success Path):</strong>
+          <ul>
+            <li>Ensures setupAutomaticSilentRefresh is invoked with correct arguments</li>
+            <li>Confirms loadDiscoveryDocumentAndLogin is called</li>
+            <li>Checks that authService.loadUserInfo is triggered</li>
+            <li>Validates that user claims are stored in localStorage</li>
+          </ul>
+        </li>
+        
+        <li><strong>connectToKeycloak (Error Path):</strong>
+          <ul>
+            <li>Mocked fetch to return { ok: false, status: 500 }</li>
+            <li>Asserts that the method throws error: "Userinfo request failed"</li>
+          </ul>
+        </li>
+        
+        <li><strong>login Method:</strong> Verifies that initCodeFlow is called when login() is executed</li>
+        
+        <li><strong>logout Method:</strong>
+          <ul>
+            <li>Confirms alert.success is called with "Logging out..."</li>
+            <li>Validates revokeTokenAndLogout is invoked</li>
+            <li>Checks that store dispatches LogOutUser action</li>
+            <li>Ensures window.location.href is set to portal origin</li>
+          </ul>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Testing Skills Applied</summary>
+      <ul>
+        <!-- <li><strong>Mocking and Spies:</strong> Used Jasmine spies to mock OAuth library, fetch API, and localStorage</li> -->
+        <li><strong>TestBed Configuration:</strong> Configured Angular TestBed with required providers and imports</li>
+        <li><strong>Async Testing:</strong> Handled asynchronous operations using async/await patterns</li>
+        <li><strong>Error Simulation:</strong> Mocked network failures to test error handling</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Impact and Learnings</summary>
+      <ul>
+        <li><strong>Coverage Improvement:</strong> Achieved >90% code coverage for AuthenticationService</li>
+        <li><strong>Bug Prevention:</strong> Tests caught regression when Keycloak realm configuration changed</li>
+        <li><strong>Documentation:</strong> Tests serve as living documentation for authentication flow</li>
+        <li><strong>Key Learning:</strong> Understanding difference between unit tests (isolated) and integration tests (with dependencies)</li>
+        <li><strong>Challenge Overcome:</strong> Initially struggled with mocking localStorage and async timing issues</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+      
       <div class="card">
         <div class="iconBox">🔄</div>
         <div>
@@ -1091,7 +1182,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <!-- <div class="card">
         <div class="iconBox">📊</div>
         <div>
           <h3>Metrics and Impact This Week</h3>
@@ -1129,9 +1220,9 @@
             </li>
           </ul>
         </div>
-      </div>
+      </div> -->
 
-      <div class="card">
+      <!-- <div class="card">
         <div class="iconBox">🤔</div>
         <div>
           <h3>Challenges and How I Overcame Them</h3>
@@ -1169,9 +1260,9 @@
             </li>
           </ul>
         </div>
-      </div>
+      </div> -->
 
-      <div class="card">
+      <!-- <div class="card">
         <div class="iconBox">💭</div>
         <div>
           <h3>Reflections and Personal Growth</h3>
@@ -1187,7 +1278,7 @@
             <li><strong>Next week's focus:</strong> Start learning PostgreSQL query optimization, shadow product manager on client call, contribute to architectural design discussion for new feature</li>
           </ul>
         </div>
-      </div>
+      </div> -->
 
     </div>
 
